@@ -1,0 +1,32 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+
+{% block content %}
+{% for sentence in sentences %}
+<div class="row mt-3">
+    <div class="card">
+        <div class="card-body">
+            <h3 id="sentence-{{ sentence.pk }}">{{ sentence.text }}</h3>
+            <p id="errors-{{ sentence.pk }}"></p>
+            <div class="holder">
+                <div data-role="controls">
+                    <button class="btn btn-primary float-right" id="{{ sentence.pk }}">start recording</button>
+                </div>
+                <div data-role="recordings"></div>
+                <!-- <div data-role="scaffold1-{{ sentence.pk }}"></div> -->
+            </div>
+            <div id="scaffold1-{{ sentence.pk }}"></div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+{% endblock content %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'core/js/recorder_scaffolding.js' %}"></script>
+    <script type="text/javascript" src="{% static 'core/js/recorder.js' %}"></script>
+    <script type="text/javascript" src="{% static 'core/js/record.js' %}"></script>
+{% endblock scripts %}

@@ -1,0 +1,21 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    This is some text within a card body.
+    <p>
+      <button id="btnStart">START RECORDING</button><br/>
+      <button id="btnStop">STOP RECORDING</button>
+    </p>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<!-- recommended -->
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="{% static 'core/js/recordUtil.js' %}"></script>
+{% endblock scripts %}
