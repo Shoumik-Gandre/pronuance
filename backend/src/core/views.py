@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 import wave
 import json
 
+from core.utils import get_words_from_sentence
+
 from . import apps
 from .models import Sentence, Rating as RatingModel, Word
 from .word_comparater import compare_sentence
@@ -40,12 +42,40 @@ def upload(request: HttpRequest):
         mask = compare_sentence(sentence.text, result['text'])
         print(mask)
         result['mask'] = mask
-        for word, rating in zip(sentence.text.split(' '), mask):
+        for word, rating in zip(get_words_from_sentence(sentence.text), mask):
             w = Word.objects.get_or_create(text=word)[0]
             read_status = RatingModel(word=w, user=request.user, score=rating)
             read_status.save()
 
     return JsonResponse(json.dumps(result), safe=False)
+
+
+@csrf_exempt
+@login_required
+def get_mask_word_no_save(request):
+    
+    if request.method == 'POST':
+
+        sound_file = request.FILES['data']
+        sound_file = wave.open(sound_file, 'rb')
+        word_id = request.POST.get('word_id', None)
+
+        # apps.CoreConfig.vosk_asr.SetWords(True)
+        apps.CoreConfig.vosk_asr.AcceptWaveform(sound_file.readframes(sound_file.getnframes()))
+
+        result = json.loads(apps.CoreConfig.vosk_asr.FinalResult())
+
+        result['word_id'] = word_id
+        word_obj = Word.objects.get(pk=int(word_id))
+        print(result)
+
+        ### COMPARE sentence AND result['text'] here
+        mask = compare_sentence(word_obj.text, result['text'])
+        
+        result['mask'] = mask
+
+    return JsonResponse(json.dumps(result), safe=False)
+
 
 
 def practice_words(request):

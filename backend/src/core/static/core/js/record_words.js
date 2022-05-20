@@ -44,33 +44,17 @@ jQuery(document).ready(function () {
                         fd.append('fname', 'test.wav');
                         fd.append('data', blob);
                         console.log("id: " + id);
-                        fd.append('sentence_id', id)
+                        fd.append('word_id', id)
                         $.ajax({
                             type: 'POST',
-                            url: '/upload',
+                            url: 'getmask-words-nosave/',
                             data: fd,
                             processData: false,
                             contentType: false
                         }).done(function (data) {
                             jsonData = JSON.parse(data);
 
-                            $('#errors-' + jsonData.sentence_id).text(jsonData.mask);
-                            // words = $('#sentence-' + jsonData.sentence_id).text().match(/\b(\w+)\b/g);
-                            // incorrect_words = [];
-                            // for (var i = 0; i < words.length; ++i) {
-                            //     if (jsonData.mask[i] === false) {
-                            //         incorrect_words.push(words[i]);
-                            //     }
-                            // }
-                            // console.log(incorrect_words);
-                            // var ul = $('<ul/>');
-                            // $('#scaffold1-' + jsonData.sentence_id).append(ul);
-                            
-                            // incorrect_words.map(word => {
-                            //     ul.append(createElementScaffold1Row(word));
-                            // })
-                            
-                            // list of incorrect div
+                            $('#errors-' + jsonData.word_id).text(jsonData.mask);
                         });
                     });
                 }

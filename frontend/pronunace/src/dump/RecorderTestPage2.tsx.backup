@@ -1,0 +1,121 @@
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext'
+import { useReactMediaRecorder } from "react-media-recorder";
+
+const RecorderTestPage = () => {
+
+  function onStopAudioRecording(blobUrl: string, blob: Blob): void {
+    var url = URL.createObjectURL(blob);
+    var li = document.createElement('li');
+    var au = document.createElement('audio');
+    var hf = document.createElement('a');
+
+    au.controls = true;
+    au.src = url;
+    hf.href = url;
+    hf.download = new Date().toISOString() + '.wav';
+    hf.innerHTML = hf.download;
+    li.appendChild(au);
+    li.appendChild(hf);
+    var recordingslist = document.getElementById('recordingslist')
+    recordingslist!.appendChild(li);
+
+
+    let formData = new FormData()
+    formData.append('sound_file', blob)
+    formData.append('sentence_id', String(1))
+
+
+    const postData = async () => {
+      let response = await fetch('http://127.0.0.1:8000/app/api/getmask/', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
+        body: formData
+      })
+      let data = await response.json()
+
+      if (response.status === 200) { console.log(data.mask) }
+      else if (response.statusText === "Unauthorized") { console.log("unauthorized") }
+
+    }
+
+    postData()
+  }
+
+  const { status, startRecording, stopRecording } =
+    useReactMediaRecorder({ 
+      video: false, 
+      audio: true, 
+      onStop: onStopAudioRecording, 
+      // mediaRecorderOptions: { mimeType: "audio/webm" }, 
+      blobPropertyBag: { type: "audio/webm" } 
+    });
+
+  let { authTokens } = useContext(AuthContext)
+
+
+  return (
+    <div>
+      <p>RecorderTest</p>
+      <h1>Recorder.js simple WAV export example</h1>
+
+      <p>Make sure you are using a recent version of Google Chrome.</p>
+      <p>Also before you enable microphone input either plug in headphones or turn the volume down if you want to avoid ear splitting feedback!</p>
+
+      <p>{status}</p>
+
+      <button id="start" onClick={startRecording}>record</button>
+      <button id="stop" onClick={stopRecording}>stop</button>
+
+      <h2>Recordings</h2>
+      <ul id="recordingslist"></ul>
+
+      <h2>Log</h2>
+      <pre id="log"></pre>
+    </div>
+  )
+}
+
+export default RecorderTestPage
+
+/*
+
+const startRecording = () => {
+    myRecorder.init()
+    myRecorder.start()
+  }
+
+  const stopRecording = () => {
+    myRecorder.stop()
+  }
+
+  const getMask = async (blob: Blob) => {
+
+    console.log(blob)
+
+    let formData = new FormData()
+
+    formData.append('sound_file', blob)
+    formData.append('sentence_id', String(1))
+
+    let response = await fetch('http://127.0.0.1:8000/app/api/getmask/', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
+      body: formData
+    })
+    let data = await response.json()
+
+    if (response.status === 200) { console.log(data.mask) }
+    else if (response.statusText === "Unauthorized") {
+      console.log("Unauthorized");
+    }
+
+  }
+
+
+      <div id="controls">
+        <button id="record" onClick={startRecording}>Record</button>
+        <button id="stop" onClick={stopRecording}>Stop</button>
+        <ul id="recordingslist"></ul>
+      </div> 
+*/

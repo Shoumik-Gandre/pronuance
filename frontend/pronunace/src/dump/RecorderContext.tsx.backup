@@ -1,0 +1,74 @@
+import { createContext, useEffect, useRef, useState } from "react";
+import Recorder from '../utils/recorder/recorderjs'
+
+
+const RecorderContext = createContext<any>(null)
+
+export const RecorderProvider = ({ children }: any) => {
+
+    // let [isRecording, setIsRecording] = useState(false)
+
+    var audioContext = useRef<AudioContext | null>(null);
+    var recorder = useRef<Recorder | null>(null)
+
+    function startUserMedia (stream: MediaStream): void {
+        var input = audioContext
+            .current!
+            .createMediaStreamSource(stream)
+
+        console.log('Media stream created.');
+
+        recorder.current = new Recorder(input);
+        console.log('Recorder initialised.');
+    }
+
+    function setUpRecorder(): void {
+        try {
+            // webkit shim
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            window.URL = window.URL || window.webkitURL;
+
+            audioContext.current = new AudioContext();
+            console.log('Audio context set up.');
+        } catch (e) {
+            alert('No web audio support in this browser!');
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(startUserMedia)
+            .catch(function (e: Error) {
+                console.log('No live audio input: ' + e);
+            });
+    }
+
+    function startRecording(): void {
+        recorder.current!.record();
+        console.log('Recording...');
+    }
+
+    function stopRecording(callback: () => void): void {
+        recorder.current!.stop();
+        console.log('Stopped recording.');
+        callback()
+        recorder.current!.clear()
+    }
+
+    function exportWAV(callback: (blob: Blob) => void): void {
+        recorder.current!.exportWAV((blob: Blob) => {
+            callback(blob)
+        })
+    }
+
+    let contextData = {
+        startRecording: startRecording,
+        stopRecording: stopRecording,
+        exportWAV: exportWAV,
+        setUpRecorder: setUpRecorder,
+    }
+
+
+    return <RecorderContext.Provider value={contextData}>{children}</RecorderContext.Provider>
+
+}
+
+export default RecorderContext

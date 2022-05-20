@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.timezone import datetime
+from django.utils import timezone
 
 
 # Create your models here.
@@ -37,7 +37,7 @@ class Rating(models.Model):
     word = models.ForeignKey(Word, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.FloatField()
-    timestamp = models.DateTimeField(default=datetime.now)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
         return f"user={self.user.username}, word={self.word}, score={self.score}, timestamp={self.timestamp}"

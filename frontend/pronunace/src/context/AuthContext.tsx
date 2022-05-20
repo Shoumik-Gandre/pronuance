@@ -25,16 +25,22 @@ export const AuthProvider = ({ children }: any) => {
 
     const navigate = useNavigate()
 
-    const loginUser = async (e: any, toHome=false) => {
-        e.preventDefault()
+    const loginUser = async (event: React.FormEvent<HTMLFormElement>, toHome: boolean=false) => {
+        event.preventDefault()
+
+        const logindata = new FormData(event.currentTarget);
 
         let response = await fetch('http://127.0.0.1:8000/auth/api/token/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 'username': e.target.username.value, 'password': e.target.password.value })
+            body: JSON.stringify({ 
+                'username': logindata.get('username'), 
+                'password': logindata.get('password') 
+            })
         });
+        
         let data = await response.json()
 
         if (response.status === 200) {
@@ -96,7 +102,7 @@ export const AuthProvider = ({ children }: any) => {
         }, fourMinutes)
 
         return () => clearInterval(interval)
-    }, [authTokens, loading])
+    })
 
     return <AuthContext.Provider value={contextData}>{loading ? null : children}</AuthContext.Provider>
 }

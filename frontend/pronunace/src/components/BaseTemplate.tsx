@@ -12,7 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -22,20 +21,7 @@ import { Tooltip } from '@mui/material';
 import { mainListItems, secondaryListItems } from '../utils/listItems'
 import AuthContext from '../context/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
-
-
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import Copyright from './Copyright'
 
 const drawerWidth: number = 240;
 
@@ -91,7 +77,7 @@ const mdTheme = createTheme();
 
 const BaseTemplate = ({ children, ...props }: any) => {
 
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
     const toggleDrawer = () => { setOpen(!open); };
 
     const { user } = React.useContext(AuthContext)
