@@ -1,6 +1,7 @@
+import { Box, Typography } from '@mui/material'
 import List from '@mui/material/List'
 import React, { useContext, useEffect, useState } from 'react'
-import RecorderCard from '../components/RecorderCard'
+import PracticeSentenceRecorderCard from '../components/RecorderCards/PracticeSentenceRecorderCard'
 import { BASE_URL } from '../constants/api_url'
 import AuthContext from '../context/AuthContext'
 import { RecorderProvider } from '../context/RecorderContext'
@@ -36,18 +37,20 @@ const PracticeSentencesPage = () => {
   }, [authTokens.access, logoutUser])
 
   return (
-    <div>
-      <p>Practice Sentences Page</p>
+    <Box>
+      <Typography>Practice Sentences Page</Typography>
       <RecorderProvider>
         <List>
           {
             challenges.map((challenge: ChallengeProps) =>
-              <RecorderCard id={challenge.id} text={challenge.text} key={challenge.id} />
+              <Box key={challenge.id}>
+                <PracticeSentenceRecorderCard index={challenge.id} text={challenge.text} />
+              </Box>
             )
           }
         </List>
       </RecorderProvider>
-    </div>
+    </Box>
   )
 }
 

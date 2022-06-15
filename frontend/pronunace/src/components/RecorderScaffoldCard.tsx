@@ -1,28 +1,21 @@
-import { Avatar, Box, Card, IconButton, ListItem, ListItemAvatar, ListItemText, Tooltip } from '@mui/material';
+import { Box, Card, IconButton, ListItem, ListItemAvatar, ListItemText, Tooltip } from '@mui/material';
 import React, { useContext, useState } from 'react'
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AuthContext from '../context/AuthContext';
 import RecorderContext from '../context/RecorderContext';
 import { BASE_URL } from '../constants/api_url'
-import IncorrectWords from './IncorrectWords';
+import WordScaffold from './WordScaffold';
 
 
 
-type RecorderCardProps = {
+type RecorderScaffoldCardProps = {
     id: number
     text: string
 }
 
-// declare global {
-//     interface Window {
-//         webkitAudioContext: typeof AudioContext
-//     }
-// }
 
-
-const RecorderCard = ({ id, text }: RecorderCardProps) => {
+const RecorderScaffoldCard = ({ id, text }: RecorderScaffoldCardProps) => {
 
     let { authTokens, logoutUser } = useContext(AuthContext)
     const { startRecording, stopRecording } = useContext(RecorderContext)
@@ -62,9 +55,8 @@ const RecorderCard = ({ id, text }: RecorderCardProps) => {
         <Box m={1} pt={1}>
 
             <Card>
-                <ListItem key={id}
-                    secondaryAction={
-                        <>
+                <ListItem key={id}>
+                    <ListItemAvatar>
                             {(!isRecording) ? (
                                 <Tooltip title="start recording">
                                     <IconButton
@@ -86,13 +78,6 @@ const RecorderCard = ({ id, text }: RecorderCardProps) => {
                                     </IconButton>
                                 </Tooltip>
                             )}
-                        </>
-                    }
-                >
-                    <ListItemAvatar>
-                        <Avatar>
-                            <ArrowForwardIosIcon />
-                        </Avatar>
                     </ListItemAvatar>
                     <ListItemText
                         primary={text}
@@ -104,11 +89,11 @@ const RecorderCard = ({ id, text }: RecorderCardProps) => {
                     && mask
                     && words.length
                     && mask.length
-                    && <><p>Incorrect Words</p><IncorrectWords words={words} mask={mask} /></>
+                    && <WordScaffold words={words} mask={mask} />
                 }
             </Card>
         </Box>
     );
 }
 
-export default RecorderCard
+export default RecorderScaffoldCard

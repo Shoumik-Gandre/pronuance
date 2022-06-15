@@ -42,4 +42,21 @@ class Rating(models.Model):
     def __str__(self) -> str:
         return f"user={self.user.username}, word={self.word}, score={self.score}, timestamp={self.timestamp}"
 
+#! Working on the following code:
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    # Number of items rated by this user
+    num_items = models.IntegerField()
+    
+    # sum of ratings of items / num_items
+    avg_ratings = models.FloatField()
+    
+    # root of sum of squares of Ratings
+    rss = models.FloatField()
+
+
+class UserSimilarityMatrix(models.Model):
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user1_usersimilaritymatrix_set')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user2_usersimilaritymatrix_set')
+    similarity_score = models.FloatField()
