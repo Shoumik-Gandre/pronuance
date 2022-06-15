@@ -38,53 +38,7 @@ def get_ratings(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ])
-def get_mask_save(request):
-
-    # Get all required variables from the request
-    user = request.user
-    sound_file: InMemoryUploadedFile = request.FILES['sound_file']
-    sentence_id: int = int(request.POST['sentence_id'])
-
-    # Fail case
-    if isinstance(CoreConfig.vosk_asr, str):
-        return Response("[0, 0, 0, 0]")
-
-    # Convert obtained audio into a VOSK suitable format
-    audio = AudioSegment.from_file_using_temporary_files(sound_file)
-    audio_buffer = io.BytesIO()
-    audio.export(audio_buffer, format='wav')
-    audio_buffer.seek(0)
-
-    # Use Vosk for speech recognition
-    CoreConfig.vosk_asr.AcceptWaveform(audio_buffer.getvalue())
-
-    result = json.loads(CoreConfig.vosk_asr.FinalResult())
-
-    # Load the sentence to be compared
-    sentence = Sentence.objects.get(pk=int(sentence_id))
-
-    # Compare true sentence with decoded speech
-    mask = compare_sentence(sentence.text, result['text'])
-    words = [word for word in nltk.word_tokenize(
-        sentence.text) if word.isalnum()]
-
-    # Assign required attributes to response
-    result['sentence_id'] = sentence_id
-    result['mask'] = mask
-
-    # Save the words as a pronunciation statistic
-    for word, rating in zip(words, mask):
-        w = Word.objects.get_or_create(text=word)[0]
-        read_status = RatingModel(word=w, user=user, score=rating)
-        read_status.save()
-    print(result)
-
-    return Response(result)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated, ])
-def get_wordmask_save(request):
+def get_mispronunciation_sentencemask_challenge(request):
 
     # Get all required variables from the request
     user = request.user
@@ -117,83 +71,6 @@ def get_wordmask_save(request):
         w = Word.objects.get_or_create(text=word)[0]
         read_status = RatingModel(word=w, user=user, score=rating)
         read_status.save()
-
-    return Response(result)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated, ])
-def get_mask_nosave(request):
-
-    # Get all required variables from the request
-    user = request.user
-    sound_file: InMemoryUploadedFile = request.FILES['sound_file']
-    sentence_id: int = int(request.POST['sentence_id'])
-
-    # Fail case
-    if isinstance(CoreConfig.vosk_asr, str):
-        return Response("[0, 0, 0, 0]")
-
-    # Convert obtained audio into a VOSK suitable format
-    audio = AudioSegment.from_file_using_temporary_files(sound_file)
-    audio_buffer = io.BytesIO()
-    audio.export(audio_buffer, format='wav')
-    audio_buffer.seek(0)
-
-    # Use Vosk for speech recognition
-    CoreConfig.vosk_asr.AcceptWaveform(audio_buffer.getvalue())
-
-    result = json.loads(CoreConfig.vosk_asr.FinalResult())
-
-    # Load the sentence to be compared
-    sentence = Sentence.objects.get(pk=int(sentence_id))
-
-    # Compare true sentence with decoded speech
-    mask = compare_sentence(sentence.text, result['text'])
-
-    # Assign required attributes to response
-    result['sentence_id'] = sentence_id
-    result['mask'] = mask
-
-    return Response(result)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated, ])
-def get_wordmask_nosave(request):
-
-    # Get all required variables from the request
-    user = request.user
-    sound_file: InMemoryUploadedFile = request.FILES['sound_file']
-    sentence_id: int = int(request.POST['sentence_id'])
-
-    # Fail case
-    if isinstance(CoreConfig.vosk_asr, str):
-        return Response("[0, 0, 0, 0]")
-
-    # Convert obtained audio into a VOSK suitable format
-    audio = AudioSegment.from_file_using_temporary_files(sound_file)
-    audio_buffer = io.BytesIO()
-    audio.export(audio_buffer, format='wav')
-    audio_buffer.seek(0)
-
-    # Use Vosk for speech recognition
-    CoreConfig.vosk_asr.AcceptWaveform(audio_buffer.getvalue())
-
-    result = json.loads(CoreConfig.vosk_asr.FinalResult())
-
-    # Load the sentence to be compared
-    sentence = Sentence.objects.get(pk=int(sentence_id))
-
-    # Compare true sentence with decoded speech
-    mask = compare_sentence(sentence.text, result['text'])
-    words = [word for word in nltk.word_tokenize(
-        sentence.text) if word.isalnum()]
-
-    # Assign required attributes to response
-    result['sentence_id'] = sentence_id
-    result['words'] = words
-    result['mask'] = mask
 
     return Response(result)
 
@@ -313,8 +190,8 @@ def practice_sentences(request):
         user_item = UserItem(user=row.user, item=row.word)
         grouped[user_item] = rating
 
-    words: Set[str] = Word.objects.all()
-    users: Set[str] = User.objects.all()
+    words: QuerySet[Word] = Word.objects.all()
+    users: QuerySet[User] = User.objects.all()
 
     recc = recommend_items(
         current_user=request.user, users=users,
@@ -325,10 +202,49 @@ def practice_sentences(request):
 
 
     suggestions: List[Sentence] = []
-    for i, word in enumerate(len(top_10_words)):
-        random_index = randrange(0, 10)
-        item = Sentence.objects.filter(text__contains=word).limit(5)[random_index]
+    for i, word in enumerate(top_10_words):
+        sentences = Sentence.objects.filter(text__contains=word)[:10]
+        item = sentences[randrange(0, min(10, len(sentences)))]
         suggestions.append(item)
     
     serializer = SentenceSerializer(suggestions, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def get_mispronunciation_sentencemask_practice(request):
+
+    # Get all required variables from the request
+    user = request.user
+    sound_file: InMemoryUploadedFile = request.FILES['sound_file']
+    sentence_id: int = int(request.POST['sentence_id'])
+
+    # Fail case
+    if isinstance(CoreConfig.vosk_asr, str):
+        return Response("[0, 0, 0, 0]")
+
+    decoded_words = TextToSpeech.decode(sound_file)
+
+    # Load the sentence to be compared
+    sentence = Sentence.objects.get(pk=int(sentence_id))
+
+    # Compare true sentence with decoded speech
+    mask = compare_sentence(sentence.text, decoded_words)
+    words = [word for word in nltk.word_tokenize(
+        sentence.text) if word.isalnum()]
+
+    # Assign required attributes to response
+    result: Dict[str, Any] = {
+        'sentence_id': sentence_id,
+        'mask': mask,
+        'words': words
+    }
+
+    # Save the words as a pronunciation statistic
+    for word, rating in zip(nltk.word_tokenize(sentence.text), mask):
+        w = Word.objects.get_or_create(text=word)[0]
+        read_status = RatingModel(word=w, user=user, score=rating)
+        read_status.save()
+
+    return Response(result)

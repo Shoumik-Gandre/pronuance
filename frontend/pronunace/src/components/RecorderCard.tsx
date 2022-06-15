@@ -5,7 +5,7 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AuthContext from '../context/AuthContext';
 import RecorderContext from '../context/RecorderContext';
-import { BASE_URL } from '../constants/api_url'
+import { GET_MISPRONUNCIATION_SENTENCEMASK_CHALLENGES } from '../constants/api_url'
 import IncorrectWords from './IncorrectWords';
 
 
@@ -40,7 +40,7 @@ const RecorderCard = ({ id, text }: RecorderCardProps) => {
         formData.append('sound_file', soundFile)
         formData.append('sentence_id', String(id))
 
-        let response = await fetch(`${BASE_URL}/getwordmask/`, {
+        let response = await fetch(GET_MISPRONUNCIATION_SENTENCEMASK_CHALLENGES, {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
             body: formData

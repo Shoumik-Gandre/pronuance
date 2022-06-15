@@ -2,11 +2,11 @@ import { Box, Typography } from '@mui/material'
 import List from '@mui/material/List'
 import React, { useContext, useEffect, useState } from 'react'
 import PracticeSentenceRecorderCard from '../components/RecorderCards/PracticeSentenceRecorderCard'
-import { BASE_URL } from '../constants/api_url'
+import { GET_PRACTICE_SENTENCES } from '../constants/api_url'
 import AuthContext from '../context/AuthContext'
 import { RecorderProvider } from '../context/RecorderContext'
 
-type ChallengeProps = {
+type SentenceProps = {
   id: number,
   text: string,
   story?: number
@@ -14,14 +14,14 @@ type ChallengeProps = {
 
 const PracticeSentencesPage = () => {
 
-  let [challenges, setChallenges] = useState<any>([])
+  let [sentences, setSentences] = useState<any>([])
   let { authTokens, logoutUser } = useContext(AuthContext)
 
   useEffect(() => {
 
-    const getChallenges = async () => {
-      let response = await fetch(`${BASE_URL}/sentences/`, {
-        method: 'GET',
+    const getSentences = async () => {
+      let response = await fetch(GET_PRACTICE_SENTENCES, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/Json',
           'Authorization': 'Bearer ' + String(authTokens.access)
@@ -29,22 +29,22 @@ const PracticeSentencesPage = () => {
       })
       let data = await response.json()
 
-      if (response.status === 200) { setChallenges(data) }
+      if (response.status === 200) { setSentences(data) }
       else if (response.statusText === "Unauthorized") { logoutUser() }
     }
 
-    getChallenges()
+    getSentences()
   }, [authTokens.access, logoutUser])
 
   return (
     <Box>
-      <Typography>Practice Sentences Page</Typography>
+      <Typography variant='h4'>Practice Sentence Pronunciation</Typography>
       <RecorderProvider>
         <List>
           {
-            challenges.map((challenge: ChallengeProps) =>
-              <Box key={challenge.id}>
-                <PracticeSentenceRecorderCard index={challenge.id} text={challenge.text} />
+            sentences.map((sentence: SentenceProps) =>
+              <Box key={sentence.id} m={1}>
+                <PracticeSentenceRecorderCard index={sentence.id} text={sentence.text} />
               </Box>
             )
           }

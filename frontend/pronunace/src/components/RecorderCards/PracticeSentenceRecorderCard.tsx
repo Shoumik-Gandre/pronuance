@@ -1,6 +1,4 @@
-//! INCOMPLETE
-
-import { IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Tooltip, Box } from '@mui/material'
+import { IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Tooltip, Box, Typography } from '@mui/material'
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 
@@ -9,25 +7,21 @@ import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import React, { useContext, useState } from 'react'
 import RecorderContext from '../../context/RecorderContext';
 import AuthContext from '../../context/AuthContext';
-import { GET_MISPRONUNCIATION_WORDMASK_PRACTICE } from '../../constants/api_url';
+import { GET_MISPRONUNCIATION_SENTENCEMASK_PRACTICE } from '../../constants/api_url';
 
 interface PracticeSentenceRecorderCardProps {
     index: number,
     text: string
 }
 
-enum AnswerStatus {
-    UNANSWERED = 0,
-    CORRECT = 1,
-    INCORRECT = 2,
-}
 
 const PracticeSentenceRecorderCard = ({ index, text }: PracticeSentenceRecorderCardProps) => {
 
     const { startRecording, stopRecording } = useContext(RecorderContext)
     let { authTokens, logoutUser } = useContext(AuthContext)
     const [isRecording, setIsRecording] = useState(false)
-    const [answerStatus, setAnswerStatus] = useState<AnswerStatus>(AnswerStatus.UNANSWERED)
+    const [mask, setMask] = useState<boolean[]>([])
+    const [words, setWords] = useState<string[]>([])
 
     const getMask = async (buffer: Buffer, blob: Blob) => {
 
@@ -36,9 +30,9 @@ const PracticeSentenceRecorderCard = ({ index, text }: PracticeSentenceRecorderC
         console.log(soundFile)
 
         formData.append('sound_file', soundFile)
-        formData.append('word', String(text))
+        formData.append('sentence_id', String(index))
 
-        let response = await fetch(GET_MISPRONUNCIATION_WORDMASK_PRACTICE, {
+        let response = await fetch(GET_MISPRONUNCIATION_SENTENCEMASK_PRACTICE, {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
             body: formData
@@ -47,9 +41,9 @@ const PracticeSentenceRecorderCard = ({ index, text }: PracticeSentenceRecorderC
 
         if (response.status === 200) {
             console.log(data.mask)
-            console.log(data.word)
-
-            setAnswerStatus(data.mask[0] === true ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT)
+            console.log(data.sentence)
+            setMask(data.mask)
+            setWords(data.words)
         }
         else if (response.statusText === "Unauthorized") { logoutUser() }
     }
@@ -98,19 +92,21 @@ const PracticeSentenceRecorderCard = ({ index, text }: PracticeSentenceRecorderC
                         </>
                     </ListItemIcon>
                     <ListItemText
-                        primaryTypographyProps={
-                            answerStatus === AnswerStatus.UNANSWERED ?
-                                {} :
-                                answerStatus === AnswerStatus.INCORRECT ?
-                                    { fontWeight: 'bold', color: "error.main" } :
-                                    { fontWeight: 'bold', color: "primary.main" }
-                        }
+                        primaryTypographyProps={<Box></Box>}
                         id={String(index)}
                         primary={text}
                     />
                 </ListItemButton>
-
             </ListItem>
+            {
+                mask 
+                && <Box><Typography>Incorrect Words:</Typography></Box>
+                && mask.map((value, index) => {
+                    if (!value) return <Box><Typography>{words[index]}</Typography></Box>
+                    return <></>
+                }
+                )
+            }
         </Paper>
     )
 }
