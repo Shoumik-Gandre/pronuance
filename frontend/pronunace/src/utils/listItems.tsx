@@ -6,6 +6,7 @@ import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BookIcon from '@mui/icons-material/Book';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import AutoStoriesTwoToneIcon from '@mui/icons-material/AutoStoriesTwoTone';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
 import PeopleIcon from '@mui/icons-material/People';
 import { Link } from 'react-router-dom';
@@ -32,7 +33,7 @@ export const mainListItems = (
         </ListItemButton>
         <ListItemButton  component={Link} to={'/practice-sentences'}>
             <ListItemIcon>
-                <AutoStoriesIcon />
+                <AutoStoriesTwoToneIcon />
             </ListItemIcon>
             <ListItemText primary="Practice Sentences" />
         </ListItemButton>

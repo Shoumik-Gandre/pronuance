@@ -1,6 +1,6 @@
 import { Box, List, Typography } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
-import RecorderPracticeWordCard from '../components/RecorderPracticeWordCard'
+import PracticeWordRecorderCard from '../components/RecorderCards/PracticeWordRecorderCard'
 import { GET_PRACTICE_WORDS } from '../constants/api_url'
 import AuthContext from '../context/AuthContext'
 import { RecorderProvider } from '../context/RecorderContext'
@@ -43,7 +43,7 @@ const PracticeWordsPage = () => {
             words.map(
               (word: WordsProps) =>
                 <Box key={word.id} mt={2}>
-                  <RecorderPracticeWordCard index={word.id} word={word.text} />
+                  <PracticeWordRecorderCard index={word.id} word={word.text} />
                 </Box>
             )
           }

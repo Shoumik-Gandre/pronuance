@@ -17,8 +17,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { Tooltip } from '@mui/material';
-import { mainListItems, secondaryListItems } from '../utils/listItems'
-import AuthContext from '../context/AuthContext';
+import { mainListItems, secondaryListItems } from '../../utils/listItems'
+import AuthContext from '../../context/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
 import Copyright from './Copyright'
 

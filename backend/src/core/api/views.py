@@ -1,19 +1,17 @@
 import io
 from random import randrange
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from core.recommend import Rating, UserItem, recommend_items
 from django.db.models import QuerySet
-from core.models import Rating as RatingModel, Sentence, Story, Word
+from core.models import Rating as RatingModel, Sentence, Word
 from core.apps import CoreConfig
-from core.tts import TextToSpeech
+from core.speech_to_text import SpeechToText
 from core.word_comparater import compare_sentence
 from .serializers import SentenceSerializer, WordSerializer, RatingSerializer
 from django.core.files.uploadedfile import InMemoryUploadedFile
-import json
-from pydub import AudioSegment
 import nltk
 from rest_framework import status
 from django.contrib.auth.models import User
@@ -49,7 +47,7 @@ def get_mispronunciation_sentencemask_challenge(request):
     if isinstance(CoreConfig.vosk_asr, str):
         return Response("[0, 0, 0, 0]")
 
-    decoded_words = TextToSpeech.decode(sound_file)
+    decoded_words = SpeechToText.decode(sound_file)
 
     # Load the sentence to be compared
     sentence = Sentence.objects.get(pk=int(sentence_id))
@@ -88,7 +86,7 @@ def get_mispronunciation_wordmask_scaffold(request):
     if isinstance(CoreConfig.vosk_asr, str):
         return Response("[0, 0, 0, 0]")
 
-    decoded_words = TextToSpeech.decode(sound_file)
+    decoded_words = SpeechToText.decode(sound_file)
 
     # Load the sentence to be compared
     try:
@@ -127,7 +125,7 @@ def get_mispronunciation_wordmask_practice(request):
     if isinstance(CoreConfig.vosk_asr, str):
         return Response("[0, 0, 0, 0]")
 
-    decoded_words = TextToSpeech.decode(sound_file)
+    decoded_words = SpeechToText.decode(sound_file)
 
     # Load the sentence to be compared
     try:
@@ -224,7 +222,7 @@ def get_mispronunciation_sentencemask_practice(request):
     if isinstance(CoreConfig.vosk_asr, str):
         return Response("[0, 0, 0, 0]")
 
-    decoded_words = TextToSpeech.decode(sound_file)
+    decoded_words = SpeechToText.decode(sound_file)
 
     # Load the sentence to be compared
     sentence = Sentence.objects.get(pk=int(sentence_id))

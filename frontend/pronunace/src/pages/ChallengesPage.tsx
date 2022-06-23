@@ -1,6 +1,6 @@
 import { Box, List, Typography } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
-import RecorderScaffoldCard from '../components/RecorderScaffoldCard'
+import ChallengeSentenceScaffoldRecorderCard from '../components/RecorderCards/ChallengeSentenceScaffoldRecorderCard'
 import AuthContext from '../context/AuthContext'
 import { RecorderProvider } from '../context/RecorderContext'
 import { BASE_URL } from '../constants/api_url'
@@ -44,8 +44,8 @@ const ChallengesPage = () => {
           {
             challenges.map(
               (challenge: ChallengeProps) =>
-                <Box key={challenge.id}>
-                  <RecorderScaffoldCard id={challenge.id} text={challenge.text} />
+                <Box key={challenge.id} mt={2}>
+                  <ChallengeSentenceScaffoldRecorderCard index={challenge.id} text={challenge.text} />
                 </Box>
             )
           }

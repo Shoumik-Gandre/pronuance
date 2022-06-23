@@ -6,7 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
-import BaseTemplate from './components/BaseTemplate';
+import BaseTemplate from './components/PageLayout/BaseTemplate';
 import DashboardPage from './pages/DashboardPage';
 import ChallengesPage from './pages/ChallengesPage';
 import PracticeWordsPage from './pages/PracticeWordsPage';

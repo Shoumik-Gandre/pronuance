@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 import vosk
 from django.conf import settings
+from nltk.corpus import cmudict
 
 
 class CoreConfig(AppConfig):
@@ -9,3 +10,4 @@ class CoreConfig(AppConfig):
     verbose_name = 'recorder'
     vosk_model = vosk.Model(settings.VOSK_MODEL_PATH) if settings.LOAD_MODELS else ''
     vosk_asr = vosk.KaldiRecognizer(vosk_model, 44100) if settings.LOAD_MODELS else '' # access through vosk model
+    phoneme_dictionary = cmudict.dict()

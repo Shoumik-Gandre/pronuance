@@ -1,15 +1,15 @@
-import { IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Tooltip, Box } from '@mui/material'
+import { IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Tooltip } from '@mui/material'
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 
 import React, { useContext, useState } from 'react'
-import RecorderContext from '../context/RecorderContext';
-import AuthContext from '../context/AuthContext';
-import { GET_MISPRONUNCIATION_WORDMASK_PRACTICE } from '../constants/api_url';
+import RecorderContext from '../../context/RecorderContext';
+import AuthContext from '../../context/AuthContext';
+import { GET_MISPRONUNCIATION_WORDMASK_PRACTICE } from '../../constants/api_url';
 
-interface RecorderPracticeWordCardProps {
+interface PracticeWordRecorderCardProps {
     index: number,
     word: string
 }
@@ -20,7 +20,7 @@ enum AnswerStatus {
     INCORRECT = 2,
 }
 
-const RecorderPracticeWordCard = ({ index, word }: RecorderPracticeWordCardProps) => {
+const PracticeWordRecorderCard = ({ index, word }: PracticeWordRecorderCardProps) => {
 
     const { startRecording, stopRecording } = useContext(RecorderContext)
     let { authTokens, logoutUser } = useContext(AuthContext)
@@ -113,4 +113,4 @@ const RecorderPracticeWordCard = ({ index, word }: RecorderPracticeWordCardProps
     )
 }
 
-export default RecorderPracticeWordCard
+export default PracticeWordRecorderCard

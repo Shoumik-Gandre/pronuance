@@ -6,7 +6,7 @@ from .apps import CoreConfig
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
-class TextToSpeech:
+class SpeechToText:
 
     @staticmethod
     def decode(sound_file: InMemoryUploadedFile) -> List[str]:
