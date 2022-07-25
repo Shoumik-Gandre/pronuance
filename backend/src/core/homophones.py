@@ -1,5 +1,13 @@
+from dataclasses import dataclass
 import re
-from typing import Protocol
+from typing import Optional, Protocol
+
+@dataclass(slots=True)
+class WordNotInVocabularyError(Exception):
+    """This error is raised when a given word is not present in the keys of the phoneme dictionary"""
+    word: str
+    vocabulary: Optional[tuple[str]]
+
 
 class IHomophoneHandler(Protocol):
 
@@ -30,8 +38,10 @@ class HomophoneHandler:
 
         if phone1_ll is None:
             raise TypeError(f"{word1} not in dictionary")
+            raise WordNotInVocabularyError(word=word1, vocabulary=self._phoneme_dict.keys())
         if phone2_ll is None:
             raise TypeError(f"{word2} not in dictionary")
+            raise WordNotInVocabularyError(word=word2, vocabulary=self._phoneme_dict.keys())
 
         phone1: set[str] = set(str(phone) for phone in phone1_ll)
         phone2: set[str] = set(str(phone) for phone in phone2_ll)
