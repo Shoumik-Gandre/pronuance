@@ -12,7 +12,6 @@ import ChallengesPage from './pages/ChallengesPage';
 import PracticeWordsPage from './pages/PracticeWordsPage';
 import PracticeSentencesPage from './pages/PracticeSentencesPage';
 import LogoutPage from './pages/LogoutPage';
-import RecorderTestPage from './pages/RecorderTestPage';
 
 
 const App: React.FC = (): JSX.Element => {
@@ -29,7 +28,7 @@ const App: React.FC = (): JSX.Element => {
                 <Route element={<PrivateRoute><ChallengesPage /></PrivateRoute>} path="/challenges" />
                 <Route element={<PrivateRoute><PracticeWordsPage /></PrivateRoute>} path="/practice-words" />
                 <Route element={<PrivateRoute><PracticeSentencesPage /></PrivateRoute>} path="/practice-sentences" />
-                <Route element={<RecorderTestPage />} path="/test" />
+                <Route element={<HomePage />} path="/test" />
               </Routes>
             </BaseTemplate>
         </AuthProvider>

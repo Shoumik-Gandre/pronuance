@@ -10,4 +10,5 @@ urlpatterns = [
     path('get-mispronunciation-sentencemask-practice/', views.get_mispronunciation_sentencemask_practice),
     path('practice-words/', views.practice_words),
     path('practice-sentences/', views.practice_sentences),
+    path('appeal-word-text/', views.appeal_word_pronunciation),
 ]

@@ -1,9 +1,12 @@
 import io
 from random import randrange
 from typing import Any, Dict, List
+from django.http import HttpRequest
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics
 from core.recommend import Rating, UserItem, recommend_items
 from django.db.models import QuerySet
 from core.models import Rating as RatingModel, Sentence, Word
@@ -196,7 +199,7 @@ def practice_sentences(request):
         items=words, grouped=grouped)
     recc = sorted(recc.items(), key=lambda x: x[1])
 
-    top_10_words = [word[0] for word in recc[:10]]
+    top_10_words = [word[0] for word in recc[:15]]
 
 
     suggestions: List[Sentence] = []
@@ -246,3 +249,25 @@ def get_mispronunciation_sentencemask_practice(request):
         read_status.save()
 
     return Response(result)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def appeal_word_pronunciation(request: HttpRequest):
+    user = request.user
+    word = request.POST['word']
+    appeal_word = RatingModel.objects.filter(word__text=word, user=user).latest('timestamp')
+    if appeal_word:
+        RatingModel.objects.filter(pk=appeal_word.pk).update(score=1)
+    return Response({'status': 'done'})
+
+
+class RatingModelPagination(PageNumberPagination):
+    page_size = 15
+    page_size_query_param = 'page_size'
+
+class RatingRecordView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = RatingModel.objects.filter()
+    serializer_class = RatingSerializer
+    pagination_class = RatingModelPagination

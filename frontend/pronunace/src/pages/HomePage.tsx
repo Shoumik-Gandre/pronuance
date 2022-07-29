@@ -1,44 +1,71 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useContext } from 'react'
+import { TextField, Typography, Button, CircularProgress } from '@mui/material'
 import AuthContext from '../context/AuthContext'
+import { APPEAL_WORD_TEXT } from '../constants/api_url';
+
 
 const HomePage = () => {
 
-  let [ratings, setRatings] = useState<any>([])
   let { authTokens, logoutUser } = useContext(AuthContext)
+  const [isLoadingAppeal, setIsLoadingAppeal] = useState(false)
+  const [appealWord, setAppealWord] = useState("")
 
-  // useEffect(() => {
+  const appealWordWithText = async (text: string) => {
 
-  //   const getRatings = async () => {
+    let formData = new FormData()
 
-  //     let response = await fetch('http://127.0.0.1:8000/app/api/ratings/', {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/Json',
-  //         'Authorization': 'Bearer ' + String(authTokens.access)
-  //       }
-  //     })
+    formData.append('word', text)
+    console.log(text)
 
-  //     let data = await response.json()
-      
-  //     if (response.status === 200) { setRatings(data) }
-  //     else if (response.statusText === "Unauthorized") { logoutUser() }
-  //   }
+    try {
+      setIsLoadingAppeal(true)
+      let response = await fetch(APPEAL_WORD_TEXT, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
+        body: formData
+      })
+      let data = await response.json()
 
-  //   getRatings()
-  // }, [])
+      if (response.status === 200) {
 
-  
+        if (data.status === 'done') {
+          setIsLoadingAppeal(false)
+        }
+      }
+      else if (response.statusText === "Unauthorized") { logoutUser() }
+    }
+    catch { }
+    finally {
+      setIsLoadingAppeal(false)
+    }
+  }
+
+
+
 
   return (
-    <div>
-      <p>HomePage</p>
-
-      {/* <ul>
-        {ratings.map((rating: any) => (
-          <li key={rating.id}>{rating.id} {rating.user} {rating.word} {rating.score}</li>
-        ))}
-      </ul> */}
-    </div>
+    <>
+      <Typography>HomePage</Typography>
+      <TextField
+        id="standard-search"
+        label="Appeal Word"
+        variant="standard"
+        fullWidth={true}
+        value={appealWord}
+        onChange={(event) => {
+          setAppealWord(event.target.value)
+        }}
+      />
+      <Button
+        variant="text"
+        onClick={() => { appealWordWithText(String(appealWord)) }}
+      >
+        Appeal Word
+      </Button>
+      {
+        isLoadingAppeal ? <CircularProgress /> : null
+      }
+    </>
   )
 }
 

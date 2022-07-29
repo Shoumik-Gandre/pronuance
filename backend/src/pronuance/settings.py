@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-hdtqj#a)qi-a9=wuthp@1efeks*y$j3swf^!#2zyy6^*@%^be9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-LOAD_MODELS = not not False
+LOAD_MODELS = not False
 
 ALLOWED_HOSTS = ['*']
 
@@ -172,6 +172,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASS')
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
+    "http://192.168.137.1:3000"
 ]
 
 

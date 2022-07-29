@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react"
 import jwt_decode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
+import { AUTHENTICATION_TOKEN, REFRESH_AUTHENTICATION_TOKEN } from "../constants/api_url"
 
 
 export type AuthContextType = {
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: any) => {
 
         const logindata = new FormData(event.currentTarget);
 
-        let response = await fetch('http://127.0.0.1:8000/auth/api/token/', {
+        let response = await fetch(AUTHENTICATION_TOKEN, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: any) => {
     }
 
     const updateToken = async () => {
-        let response = await fetch('http://127.0.0.1:8000/auth/api/token/refresh/', {
+        let response = await fetch(REFRESH_AUTHENTICATION_TOKEN, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

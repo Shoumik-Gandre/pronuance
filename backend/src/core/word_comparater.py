@@ -24,16 +24,24 @@ class BiLinearWordComprisonStrategy:
         n: int = min(len(original_words), len(asr_words))
 
         for i in range(n):
-            if original_words[i] == asr_words[i] \
-                or self._homophone_handler.are_homophones(original_words[i], asr_words[i]):
+            are_homophones = False
+            try: 
+                are_homophones = self._homophone_handler.are_homophones(original_words[i], asr_words[i])
+            except:
+                are_homophones = False
+            if original_words[i] == asr_words[i] or are_homophones:
                 mask[i] = True
 
         original_words.reverse()
         asr_words.reverse()
 
         for i in range(n):
-            if original_words[i] == asr_words[i] \
-                or self._homophone_handler.are_homophones(original_words[i], asr_words[i]):
+            are_homophones = False
+            try: 
+                are_homophones = self._homophone_handler.are_homophones(original_words[i], asr_words[i])
+            except:
+                are_homophones = False
+            if original_words[i] == asr_words[i] or are_homophones:
                 mask[len(original_words) - i - 1] = True
 
         return mask
@@ -49,16 +57,25 @@ def compare_sentence(original_text: str, asr_text: str) -> List[bool]:
     n: int = min(len(original_words), len(asr_words))
 
     for i in range(n):
-        if original_words[i] == asr_words[i] \
-            or homophone_handler.are_homophones(original_words[i], asr_words[i]):
+        are_homophones = False
+        try: 
+            are_homophones = homophone_handler.are_homophones(original_words[i], asr_words[i])
+        except:
+            are_homophones = False
+        if original_words[i] == asr_words[i] or are_homophones:
             mask[i] = True
 
     original_words.reverse()
     asr_words.reverse()
 
     for i in range(n):
-        if original_words[i] == asr_words[i] \
-            or homophone_handler.are_homophones(original_words[i], asr_words[i]):
+        are_homophones = False
+        try: 
+            are_homophones = homophone_handler.are_homophones(original_words[i], asr_words[i])
+        except:
+            are_homophones = False
+
+        if original_words[i] == asr_words[i] or are_homophones:
             mask[len(original_words) - i - 1] = True
 
     return mask

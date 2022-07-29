@@ -1,13 +1,14 @@
-import { IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material'
+import { CircularProgress, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material'
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import Button from '@mui/material/Button';
 
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 
 import React, { useContext, useState } from 'react'
 import RecorderContext from '../context/RecorderContext';
 import AuthContext from '../context/AuthContext';
-import { GET_MISPRONUNCIATION_WORDMASK_SCAFFOLD } from '../constants/api_url';
+import { GET_MISPRONUNCIATION_WORDMASK_SCAFFOLD, APPEAL_WORD_TEXT } from '../constants/api_url';
 import tts from '../utils/tts';
 
 interface RecorderWordProps {
@@ -27,30 +28,63 @@ const RecorderWord = ({ index, word }: RecorderWordProps) => {
     let { authTokens, logoutUser } = useContext(AuthContext)
     const [isRecording, setIsRecording] = useState(false)
     const [answerStatus, setAnswerStatus] = useState<AnswerStatus>(AnswerStatus.UNANSWERED)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isAppealed, setIsAppealed] = useState(false)
 
     const getMask = async (buffer: Buffer, blob: Blob) => {
 
         let formData = new FormData()
         const soundFile = blob
-        console.log(soundFile)
-
+        
         formData.append('sound_file', soundFile)
         formData.append('word', String(word))
+        try {
+            setIsLoading(true)
+            let response = await fetch(GET_MISPRONUNCIATION_WORDMASK_SCAFFOLD, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
+                body: formData
+            })
+            let data = await response.json()
 
-        let response = await fetch(GET_MISPRONUNCIATION_WORDMASK_SCAFFOLD, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
-            body: formData
-        })
-        let data = await response.json()
-
-        if (response.status === 200) {
-            console.log(data.mask)
-            console.log(data.word)
-
-            setAnswerStatus(data.mask[0] === true ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT)
+            if (response.status === 200) {
+                setAnswerStatus(data.mask[0] === true ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT)
+            }
+            else if (response.statusText === "Unauthorized") { logoutUser() }
         }
-        else if (response.statusText === "Unauthorized") { logoutUser() }
+        catch { }
+        finally {
+            setIsLoading(false)
+        }
+    }
+
+    const appealWordWithText = async (text: string) => {
+
+        let formData = new FormData()
+
+        formData.append('word', text)
+
+        try {
+            setIsLoading(true)
+            let response = await fetch(APPEAL_WORD_TEXT, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + String(authTokens.access) },
+                body: formData
+            })
+            let data = await response.json()
+
+            if (response.status === 200) {
+
+                if (data.status === 'done') {
+                    setIsAppealed(true)
+                }
+            }
+            else if (response.statusText === "Unauthorized") { logoutUser() }
+        }
+        catch { }
+        finally {
+            setIsLoading(false)
+        }
     }
 
 
@@ -74,27 +108,29 @@ const RecorderWord = ({ index, word }: RecorderWordProps) => {
                 <ListItemIcon>
 
                     <>
-                        {(!isRecording) ? (
-                            <Tooltip title="start recording">
-                                <IconButton
-                                    aria-label="start recording audio"
-                                    onClick={() => { startRecording(); setIsRecording(true) }}
-                                    size="large"
-                                    color="error">
-                                    <MicIcon fontSize="inherit" />
-                                </IconButton>
-                            </Tooltip>
-                        ) : (
-                            <Tooltip title="stop recording">
-                                <IconButton
-                                    aria-label="stop recording audio"
-                                    onClick={() => { stopRecording(getMask); setIsRecording(false) }}
-                                    size="large"
-                                    color="secondary">
-                                    <MicOffIcon fontSize="inherit" />
-                                </IconButton>
-                            </Tooltip>
-                        )}
+                        {
+                            (isLoading) ? <CircularProgress /> :
+                                (!isRecording) ? (
+                                    <Tooltip title="start recording">
+                                        <IconButton
+                                            aria-label="start recording audio"
+                                            onClick={() => { startRecording(); setIsRecording(true) }}
+                                            size="large"
+                                            color="error">
+                                            <MicIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </Tooltip>
+                                ) : (
+                                    <Tooltip title="stop recording">
+                                        <IconButton
+                                            aria-label="stop recording audio"
+                                            onClick={() => { stopRecording(getMask); setIsRecording(false) }}
+                                            size="large"
+                                            color="secondary">
+                                            <MicOffIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                     </>
                 </ListItemIcon>
                 <ListItemText
@@ -108,6 +144,13 @@ const RecorderWord = ({ index, word }: RecorderWordProps) => {
                     id={String(index)}
                     primary={word}
                 />
+                <Button
+                    disabled={isAppealed}
+                    variant="text"
+                    onClick={() => { appealWordWithText(String(word)) }}
+                >
+                    Appeal Word
+                </Button>
             </ListItemButton>
 
         </ListItem>
